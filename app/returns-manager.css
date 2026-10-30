@@ -5,4 +5,6 @@
 
 .return-configuration{scroll-margin-top:24px;outline:none}
 
-.returns-filters>.btn{height:40px;min-height:40px;align-self:flex-end;box-sizing:border-box;margin:0;line-height:20px}
+.returns-admin .returns-filters>.btn{height:40px;min-height:40px;align-self:flex-end;box-sizing:border-box;margin:0;line-height:20px}
+
+.returns-admin .returns-filters>label{margin:0}
