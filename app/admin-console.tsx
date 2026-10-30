@@ -554,7 +554,6 @@ function MembershipManager({tiers,list,onSaveTier,onAdjust,onOrder}:{tiers:ApiMe
         <div className="tier-card-head"><span>{tier.code}</span><small>{tier.minSpendCents===0?"默认等级":`${money(tier.minSpendCents)}+`}</small></div>
         <h3>{tier.name}</h3>
         <div className="tier-rate"><strong>{tier.cashbackPercent}</strong><span>% 积分回馈</span></div>
-        <p>确认期后的有效消费达到 {money(tier.minSpendCents)}；到期或退款后重新评定</p>
         <button onClick={()=>setEditing({...tier})}>编辑规则 <ArrowRight aria-hidden="true"/></button>
       </article>)}</div>
     </section>
