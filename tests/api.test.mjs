@@ -15,3 +15,8 @@ test("network, malformed and provider failures are recoverable without exposing 
  try{for(const response of [()=>{throw new Error("secret-token SQL internal")},()=>Response.json(null),()=>Response.json({ok:true,data:{items:[]}}),()=>new Response("not json"),()=>Response.json({ok:false,error:{code:"SQL_SECRET",message:"secret-token SQL internal"}},{status:503})]){globalThis.fetch=async()=>response();await assert.rejects(api.list("isolated-test","/v1/orders",params),error=>Boolean(error.message)&&!error.message.includes("secret-token")&&!error.message.includes("SQL"))}}finally{globalThis.fetch=original}
 });
 test("production builds cannot fall back to a localhost API",()=>{const old=process.env.NODE_ENV;try{process.env.NODE_ENV="production";assert.equal(resolveApiBaseUrl("localhost"),"https://api.cucsupply.com");assert.equal(resolveApiBaseUrl("127.0.0.1"),"https://api.cucsupply.com")}finally{process.env.NODE_ENV=old}});
+
+test("incorrect login credentials do not report an expired session",async()=>{
+ const original=globalThis.fetch;
+ try{globalThis.fetch=async()=>Response.json({ok:false,error:{code:"INVALID_CREDENTIALS",message:"Account or password is incorrect."}},{status:401});await assert.rejects(api.login("admin","wrong-password"),error=>error.code==="INVALID_CREDENTIALS"&&error.message==="账号或密码错误，请重新输入。")}finally{globalThis.fetch=original}
+});

@@ -33,9 +33,10 @@ function AdminAppContent() {
         try {
           const user = await api.me(token);
           if (active) setAuth({ status: "authenticated", token, user });
-        } catch {
-          window.localStorage.removeItem("neotrix-admin-token");
-          if (active) setAuth({ status: "login", message: "登录状态已过期，请重新登录。" });
+        } catch (caught) {
+          const expired = caught instanceof ApiClientError && caught.status === 401;
+          if (expired) window.localStorage.removeItem("neotrix-admin-token");
+          if (active) setAuth({ status: "login", message: expired ? "登录状态已过期，请重新登录。" : "无法验证登录状态，请检查网络或稍后重试。" });
         }
       } catch {
         if (active) setAuth({ status: "login", message: "后台服务暂时不可用，请稍后重试。" });

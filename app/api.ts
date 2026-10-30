@@ -163,7 +163,7 @@ export async function request<T>(
       window.localStorage.removeItem("neotrix-admin-token");
       window.dispatchEvent(new Event("neotrix-auth-expired"));
     }
-    throw new ApiClientError(response.status,apiError?.code??"REQUEST_FAILED",response.status===401?"登录已过期，请重新登录。":response.status===403?"你没有权限执行此操作。":response.status===409?"当前数据状态不允许此操作，请刷新后检查。":response.status>=500?"服务暂时不可用，请重试。":"无法完成操作，请检查输入后重试。");
+    throw new ApiClientError(response.status,apiError?.code??"REQUEST_FAILED",apiError?.code==="INVALID_CREDENTIALS"?"账号或密码错误，请重新输入。":response.status===401?(token?"登录已过期，请重新登录。":"请先登录后重试。"):response.status===403?"你没有权限执行此操作。":response.status===409?"当前数据状态不允许此操作，请刷新后检查。":response.status>=500?"服务暂时不可用，请重试。":"无法完成操作，请检查输入后重试。");
   }
   if(!("data" in payload)||payload.data===undefined)throw new ApiClientError(502,"INVALID_RESPONSE","服务暂时不可用，请重试。");
   return payload.data;
