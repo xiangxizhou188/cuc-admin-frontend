@@ -46,3 +46,38 @@ below the documented minimum.
 - Product names, SKUs, brands, URLs, and source catalog data remain unchanged.
 - Chinese text uses Geist with PingFang SC and Microsoft YaHei fallbacks.
 - Avoid excessive letter spacing on Chinese labels; spacing is reserved for short brand marks.
+
+## Visual direction: Stripe-style administrative UI
+
+All administrative pages use the same Stripe-inspired visual language, including
+operations, products, imports, categories, brands, inventory, customers,
+membership, orders, homepage content, audit logs, settings, drawers and dialogs.
+
+- Use white content surfaces, a light neutral sidebar, thin neutral borders and
+  restrained shadows. Avoid decorative gradients and colored card edge strips.
+- Use purple `#635bff` for primary actions, selected navigation and links.
+  Semantic colors remain distinct: green for success, amber for attention,
+  red for failures, destructive actions and pending-order navigation counts.
+- Panels use an 8px radius; controls use 6px. Use 20–24px panel padding and
+  12–16px gaps. Avoid oversized empty toolbars.
+- Page titles use 28px/600 on desktop and 24px on mobile. Section titles use
+  18px/600. Body and primary table data use 14px; metadata uses 12px. Use
+  restrained 400–600 weights and tabular numerals for amounts and counts.
+- Use Geist where provided, then system sans-serif with PingFang SC and
+  Microsoft YaHei fallbacks. Preserve readable line heights and native zoom.
+- Use Phosphor icons with consistent sizing; icons inherit semantic text colors.
+  Do not use text symbols in place of action icons.
+- Filters sit above data in a compact wrapping toolbar. Pagination sits below
+  the table, with the count on the left and navigation on the right.
+- Table headers use a subtle neutral background, sentence-style labels and
+  light separators. Primary data and secondary metadata occupy separate lines.
+  Monetary columns align right and show currency consistently.
+- Render payment states as compact semantic badges. Fulfillment controls and
+  filters show Chinese labels while preserving the API's underlying values.
+- Forms and dialogs share the same borders, focus ring, type scale and button
+  hierarchy. Keep destructive confirmations explicit. Never change payment or
+  inventory behavior as part of visual cleanup.
+- Show useful loading, empty and error states. Retain keyboard focus indicators,
+  dialog focus management, horizontal table scrolling and mobile form wrapping.
+- Pending-order counts use a red/white rounded badge, hide at zero and cap the
+  displayed label at `99+`; the accessible label retains the exact count.

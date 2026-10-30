@@ -1,0 +1,16 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {createRequire} from 'node:module';
+import {createElement} from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
+import ts from 'typescript';
+const require=createRequire(import.meta.url),source=await readFile(new URL('../app/customer-insights.tsx',import.meta.url),'utf8'),icon=()=>createElement('svg'),output={};
+const compiled=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2022}}).outputText;
+new Function('require','exports',compiled)(id=>id==='@phosphor-icons/react'?new Proxy({},{get:()=>icon}):id==='./api'?{API_BASE_URL:'https://api.cucsupply.com'}:id.endsWith('.css')?{}:require(id),output);
+const customer={username:'fixture',orders:[],topProducts:[],insights:{netPaidCents:50,annualNetPaidCents:50,annualOrderCount:1,paidOrderCount:1,validOrderCount:1,grossPaidCents:50,refundedCents:0,netRewardsCents:0,averageOrderCents:50,daysSinceLastOrder:0,lastOrderAt:'2026-10-29 23:29:50',firstOrderAt:'2026-10-29 23:29:50',openOrderCount:1,averageIntervalDays:null,legacyOrderCount:0,spendRank:1,purchasingCustomers:1,unallocatedRefundOrderCount:0}};
+const value=c=>renderToStaticMarkup(createElement(output.CustomerValueOverview,{customer:c}));
+test('a single small purchase is a first-time customer, with small-sample warning instead of a high-value claim',()=>{const html=value(customer);assert.match(html,/首购客户/);assert.match(html,/样本较少/);assert.match(html,/\$0\.50/);assert.doesNotMatch(html,/建议重点维护|前 20%/);assert.match(html,/1 笔订单待完成/)});
+test('zero-purchase records have no invented last purchase or spend rank',()=>{const html=value({...customer,insights:{...customer.insights,validOrderCount:0,paidOrderCount:0,netPaidCents:0,daysSinceLastOrder:null,spendRank:null,purchasingCustomers:0}});assert.match(html,/暂无有效成交/);assert.match(html,/尚未购买/);assert.match(html,/暂无排名/)});
+test('repeat and dormant signals disclose their evidence, while Rewards remain separate',()=>{const html=value({...customer,insights:{...customer.insights,validOrderCount:4,netRewardsCents:3000,daysSinceLastOrder:100,purchasingCustomers:20,spendRank:2}});assert.match(html,/复购客户/);assert.match(html,/4 笔有效订单/);assert.match(html,/超过 90 天/);assert.match(html,/含并列/);assert.match(html,/净 Rewards 抵扣/);assert.match(html,/\$30\.00/)});
+test('purchase panels preserve product names and warn about unallocated refunds',()=>{const c={...customer,insights:{...customer.insights,unallocatedRefundOrderCount:1},topProducts:[{productId:'p',sku:'CUC-01',name:'1/2 inch Conduit',quantity:3,purchaseOrders:2,merchandiseCents:15000,lastPurchasedAt:'2026-10-29 23:29:50',primaryMediaId:null}]};const html=renderToStaticMarkup(createElement(output.CustomerPurchasePanels,{customer:c,onOrders(){}}));assert.match(html,/1\/2 inch Conduit/);assert.match(html,/3 件/);assert.match(html,/2 次购买/);assert.match(html,/\$150\.00/);assert.match(html,/1 笔部分退款未分摊到商品/)});

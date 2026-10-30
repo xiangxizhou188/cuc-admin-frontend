@@ -24,9 +24,10 @@ test("Pages build contains the CUC Supply admin brand", async () => {
   assert.doesNotMatch(bundle, /Welcome back|Product management|Inventory control|Workspace settings/);
 });
 
-test("renders admin logos as white marks without a background panel", async () => {
+test("uses the original logo in the light sidebar and a white logo on sign-in", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
-  assert.match(css, /\.brand-mark img \{[^}]*background: transparent; filter: brightness\(0\) invert\(1\);/);
+  assert.match(css, /\.admin-shell \.sidebar \{[^}]*background:#fbfcfe/);
+  assert.match(css, /\.admin-shell \.brand-mark img \{[^}]*filter:none/);
   assert.match(css, /\.auth-brand > img \{[^}]*background: transparent; filter: brightness\(0\) invert\(1\);/);
 });
 

@@ -1,4 +1,5 @@
-export type ApiProductTranslation={locale:"en"|"es"|"zh";name:string;description:string;seo_title:string;seo_description:string;is_manual:number};
+import type {ProductDetails} from "../shared/product-details";
+export type ApiProductTranslation={locale:"en"|"es"|"zh";name:string;description:string;seo_title:string;seo_description:string;is_manual:number;details_json?:string};
 export type ProductSaveResult={id:string;translationStatus:"ready"|"unavailable"|"failed"|"limited"|"busy"};
 const PRODUCTION_API_BASE_URL = "https://api.cucsupply.com";
 const LOCAL_API_BASE_URL = "http://localhost:8787";
@@ -23,6 +24,7 @@ export type ApiProduct = {
   translations?: ApiProductTranslation[];
   stock?:Record<string,number>;
   id: string;
+  importId?: string | null;
   sku: string;
   name: string;
   slug: string;
@@ -43,15 +45,16 @@ export type ApiProduct = {
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
-  media?: { product_id: string; media_id: string; role: "primary" | "detail" | "exploded"; sort_order: number }[];
+  media?: { id?: string; media_id?: string; filename?: string; role: "primary" | "detail" | "exploded"; sort_order: number }[];
   mediaIds?: string[];
   translationCount?: number;
   publishingChannels:string[]; collections:string[]; tags:string[]; themeTemplate:string;
   inventoryTracked:boolean; continueSelling:boolean; barcode:string; isPhysical:boolean;
+  returnRestriction?:string;
   shippingClass:"parcel"|"freight"|"quote_required"; stripeTaxCode:string;
   weightValue:number; weightUnit:"lb"|"oz"|"kg"|"g"; packageName:string; countryOfOrigin:string; hsCode:string;
   seoTitle:string; seoDescription:string; productOptions:{name:string;values:string[]}[]; metafields:Record<string,string>;
-  variants:{id?:string;title:string;sku:string;barcode:string;optionValues:Record<string,string>;priceCents:number;compareAtPriceCents:number|null;weightValue:number;weightUnit:"lb"|"oz"|"kg"|"g";mediaId:string|null;isActive:boolean;sortOrder:number}[];
+  variants:{id?:string;title:string;sku:string;barcode:string;optionValues:Record<string,string>;priceCents:number;compareAtPriceCents:number|null;costCents:number|null;weightValue:number;weightUnit:"lb"|"oz"|"kg"|"g";mediaId:string|null;isActive:boolean;sortOrder:number;stock:Record<string,number>}[];
 };
 
 export type ApiCategory = {
@@ -101,14 +104,20 @@ export type ApiPageSlot = {
 };
 
 export type ApiMembershipTier = { id:string; code:string; name:string; minSpendCents:number; cashbackPercent:number; sortOrder:number; isActive:boolean };
-export type ApiMembershipCustomer = { id:string; username:string; email:string|null; displayName:string; status:string; eligibleSpendCents:number; tierCode:string; tierName:string; cashbackPercent:number; availableCents:number; pendingCents:number; lifetimeEarnedCents:number; lastLoginAt:string|null };
-export type ApiOrder={id:string;orderNumber:string;customerId:string;customerName:string;username:string;status:"submitted"|"confirmed"|"processing"|"shipped"|"delivered"|"cancelled"|"refunded";checkoutId:string|null;paymentStatus:string;refundedAmountCents:number;totalCents:number;city:string;state:string;createdAt:string};
+export type ApiMembershipCustomer = { id:string; username:string; email:string|null; displayName:string; status:string; eligibleSpendCents:number; tierCode:string; tierName:string; cashbackPercent:number; availableCents:number; reservedCents?:number; debtCents?:number; pendingCents:number; lifetimeEarnedCents:number; lastLoginAt:string|null };
+export type ApiOrder={id:string;orderNumber:string;customerId:string;customerName:string;username:string;status:"submitted"|"confirmed"|"processing"|"shipped"|"delivered"|"cancelled"|"refunded";checkoutId:string|null;paymentStatus:string;refundedAmountCents:number;rewardsCents?:number;restoredRewardsCents?:number;taxError?:string|null;totalCents:number;city:string;state:string;createdAt:string};
 export type ApiSettings={store_name:string;store_url:string;require_publish_review:string;support_email:string;support_phone:string};
 export type ApiCustomerTag={id:string;name:string;color:string;customerCount?:number};
-export type ApiAdminCustomer={id:string;username:string;email:string|null;displayName:string;phone:string;company:string;customerType:string;preferredLanguage:string;status:string;emailSubscribed:boolean;smsSubscribed:boolean;whatsappSubscribed:boolean;taxExempt:boolean;taxId:string;storeCreditCents:number;adminNote:string;orderCount:number;amountSpentCents:number;lastOrderAt:string|null;location:string;createdAt:string;lastLoginAt:string|null;tierName:string;cashbackCents:number;tags:ApiCustomerTag[]};
-export type ApiCustomerDetail=ApiAdminCustomer&{addresses:{id:string;label:string;recipientName:string;phone:string;addressLine1:string;addressLine2:string;city:string;state:string;postalCode:string;country:string;isDefault:boolean}[];orders:{id:string;orderNumber:string;status:string;totalCents:number;createdAt:string}[];timeline:{id:string;eventType:string;content:string;authorName:string|null;createdAt:string}[]};
+export type ApiAdminCustomer={id:string;username:string;email:string|null;displayName:string;phone:string;company:string;customerType:string;preferredLanguage:string;status:string;emailSubscribed:boolean;smsSubscribed:boolean;whatsappSubscribed:boolean;taxExempt:boolean;taxId:string;storeCreditCents:number;adminNote:string;orderCount:number;amountSpentCents:number;lastOrderAt:string|null;location:string;createdAt:string;lastLoginAt:string|null;tierName:string;cashbackCents:number;tags:ApiCustomerTag[];paidOrderCount:number;validOrderCount:number;refundedCents:number;grossPaidCents:number;legacyOrderCount:number};
+export type ApiCustomerInsights={grossPaidCents:number;refundedCents:number;netPaidCents:number;netRewardsCents:number;paidOrderCount:number;validOrderCount:number;annualNetPaidCents:number;annualOrderCount:number;averageOrderCents:number;firstOrderAt:string|null;lastOrderAt:string|null;daysSinceLastOrder:number|null;averageIntervalDays:number|null;openOrderCount:number;legacyOrderCount:number;spendRank:number|null;purchasingCustomers:number;unallocatedRefundOrderCount:number};
+export type ApiCustomerDetail=ApiAdminCustomer&{insights:ApiCustomerInsights;topProducts:{productId:string;sku:string;name:string;quantity:number;purchaseOrders:number;merchandiseCents:number;lastPurchasedAt:string;primaryMediaId:string|null}[];addresses:{id:string;label:string;recipientName:string;phone:string;addressLine1:string;addressLine2:string;city:string;state:string;postalCode:string;country:string;isDefault:boolean}[];orders:{id:string;orderNumber:string;status:string;paymentStatus:string;totalCents:number;netPaidCents:number;refundedCents:number;rewardsCents:number;createdAt:string}[];timeline:{id:string;eventType:string;content:string;authorName:string|null;createdAt:string}[]};
 export type ApiCustomerSegment={id:string;name:string;ruleKey:string;customerCount:number;customerPercent:number;createdBy:string;createdAt:string};
 export type ApiDashboard = {
+  operations: {
+    sales: {day:string; orders:number; grossCents:number; netCents:number}[];
+    pendingOrders: {id:string; orderNumber:string; customerName:string; status:string; totalCents:number; createdAt:string; paymentStatus:string}[];
+    orderCounts: Record<string,number>;
+  } | null;
   generatedAt: string;
   products: { total:number; published:number; draft:number; unpublished:number };
   inventory: { totalQuantity:number; lowStockItems:number; activeWarehouses:number };
@@ -130,7 +139,7 @@ export class ApiClientError extends Error {
 }
 
 export type ApiPage<T>={items:T[];pagination:{page:number;page_size:number;total_items:number;total_pages:number;has_previous:boolean;has_next:boolean}};
-async function request<T>(
+export async function request<T>(
   path: string,
   options: RequestInit = {},
   token?: string | null,
@@ -160,9 +169,10 @@ async function request<T>(
   return payload.data;
 }
 
-export type ImportSource={title:string|null;brand:string|null;model:string|null;mpn:string|null;sku:string|null;upc:string|null;price:string|null;currency:string|null;description:string|null;specifications:Record<string,string>;images:{sourceUrl:string;originalUrl?:string;selected:boolean;role:"REFERENCE"}[];documents:{sourceUrl:string;title:string|null;role:"REFERENCE"}[]};
-export type ProductImportSummary={importId:string;title:string;sourceSite:string;sourceUrl:string;sourceProductId:string|null;sourcePrice:string|null;status:"pending_review"|"rejected"|"draft_created";productId:string|null;createdAt:string};
-export type ProductImportDetail=ProductImportSummary&{capturedAt:string;source:unknown;reviewedSource:ImportSource};
+export type ImportSource={title:string|null;brand:string|null;model:string|null;mpn:string|null;sku:string|null;upc:string|null;price:string|null;currency:string|null;description:string|null;specifications:Record<string,string>;variants?:{optionName:string;optionValue:string;sourceProductId:string|null;sourceUrl:string|null;price:string|null;currency:string|null;selected:boolean}[];images:{sourceUrl:string;originalUrl?:string;selected:boolean;removed?:boolean;role:"REFERENCE";aiGenerated?:boolean;derivedFrom?:string}[];documents:{sourceUrl:string;title:string|null;role:"REFERENCE"}[]};
+export type ImportOptimization={productName:string;seoTitle:string;metaDescription:string;slug:string;shortDescription:string;fullDescription:string;primaryKeyword:string;secondaryKeywords:string[];imageAltTexts:{sourceImageIndex:number;altText:string}[]};
+export type ProductImportSummary={importId:string;title:string;thumbnailUrl:string|null;sourceSite:string;sourceUrl:string;sourceProductId:string|null;sourcePrice:string|null;status:"pending_review"|"rejected"|"draft_created";optimizationStatus:"processing"|"succeeded"|"optimization_failed"|null;optimizationErrorCode:string|null;productId:string|null;createdAt:string};
+export type ProductImportDetail=ProductImportSummary&{capturedAt:string;source:unknown;reviewedSource:ImportSource;optimized:ImportOptimization|null;duplicateSeoContent?:{id:string;sku:string;slug:string}[]};
 export async function importSourceImage(token:string,importId:string,index:number):Promise<File>{
  const response=await fetch(`${API_BASE_URL}/v1/admin/product-imports/${encodeURIComponent(importId)}/images/${index}`,{headers:{Authorization:`Bearer ${token}`},credentials:"omit"});
  if(!response.ok){const body=await response.json().catch(()=>null);throw new Error(body?.error?.message??"无法读取参考图片，请下载后手动上传。");}
@@ -170,9 +180,12 @@ export async function importSourceImage(token:string,importId:string,index:numbe
  return new File([blob],`import-${importId}-${index}.${extensions[blob.type]??"bin"}`,{type:blob.type});
 }
 export const api = {
+  syncProductImportImages:(token:string,id:string)=>request<{productId:string;mediaCount:number;added:number;items:{id:string;index:number}[];failures:{index:number;message:string}[]}>(`/v1/admin/product-imports/${encodeURIComponent(id)}/sync-images`,{method:"POST"},token),
+  removeProductImportImage:(token:string,id:string,index:number)=>request<{importId:string;index:number;removed:boolean}>(`/v1/admin/product-imports/${encodeURIComponent(id)}/images/${index}`,{method:"DELETE"},token),
   productImports:(token:string,query:URLSearchParams)=>request<{items:ProductImportSummary[];page:number;total:number}>(`/v1/admin/product-imports?${query}`,{},token),
   productImport:(token:string,id:string)=>request<ProductImportDetail>(`/v1/admin/product-imports/${encodeURIComponent(id)}`,{},token),
   rejectProductImport:(token:string,id:string)=>request(`/v1/admin/product-imports/${encodeURIComponent(id)}/reject`,{method:"POST"},token),
+  deleteProductImport:(token:string,id:string)=>request(`/v1/admin/product-imports/${encodeURIComponent(id)}`,{method:"DELETE"},token),
   list:async<T>(token:string,path:string,params:URLSearchParams,signal?:AbortSignal)=>{
     const data=await request<ApiPage<T>>(`${path}?${params}`,{signal,cache:"no-store"},token);
     if(!Array.isArray(data?.items)||!data.pagination||![data.pagination.page,data.pagination.page_size,data.pagination.total_items,data.pagination.total_pages].every(Number.isSafeInteger))throw new ApiClientError(502,"INVALID_RESPONSE","列表暂时不可用，请重试。");
@@ -226,8 +239,8 @@ export const api = {
     request<{ id: string; deleted: boolean }>(`/v1/brands/${id}`, { method: "DELETE" }, token),
   product: (token:string,id:string)=>request<ApiProduct>(`/v1/products/${id}`,{},token),
   translateProduct:(token:string,id:string)=>request<{translationStatus:ProductSaveResult["translationStatus"]}>(`/v1/products/${id}/translations`,{method:"POST"},token),
-  saveProductTranslation:(token:string,id:string,t:ApiProductTranslation)=>request<{saved:boolean}>(`/v1/products/${id}/translations/${t.locale}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:t.name,description:t.description,seoTitle:t.seo_title,seoDescription:t.seo_description})},token),
-  createProduct: (token: string, product: Omit<ApiProduct, "id" | "primaryMediaId" | "publishedAt" | "createdAt" | "updatedAt"> & { initialInventory?: Record<string, number>; importId?:string }) =>
+  saveProductTranslation:(token:string,id:string,t:ApiProductTranslation)=>request<{saved:boolean}>(`/v1/products/${id}/translations/${t.locale}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:t.name,description:t.description,seoTitle:t.seo_title,seoDescription:t.seo_description,...(t.details_json?{productDetails:JSON.parse(t.details_json) as ProductDetails}:{})})},token),
+  createProduct: (token: string, product: Omit<ApiProduct, "id" | "primaryMediaId" | "publishedAt" | "createdAt" | "updatedAt" | "importId"> & { initialInventory?: Record<string, number>; importId?:string }) =>
     request<ProductSaveResult>("/v1/products", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
