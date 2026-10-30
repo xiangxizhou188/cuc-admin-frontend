@@ -39,7 +39,7 @@ export function OrderShipping({token,orderId,onClose}:{token:string;orderId:stri
   const issues = shippingPackageIssues(pieces);
   const quoteExpired = Boolean(quote && now >= quote.expiresAt);
   const canQuote = editable && !busy && !loading && !channelLoading && !channelError && Boolean(channel) && !issues.length;
-  const readiness = !detail?.canShip ? detail?.blockReason || "请先确认订单付款及履约状态。" : channelLoading ? "正在读取授权物流渠道…" : channelError ? "物流渠道加载失败，请重试。" : !channels.length ? "暂无可用物流渠道，请联系物流商开通。" : !channel ? "请选择物流渠道，再核对包裹信息。" : issues.length ? issues[0] : "信息已齐全，可以查询物流成本。";
+  const readiness = !detail ? loading ? "正在读取订单信息…" : "订单读取失败，请重试。" : !detail.canShip ? detail?.blockReason || "请先确认订单付款及履约状态。" : channelLoading ? "正在读取授权物流渠道…" : channelError ? "物流渠道加载失败，请重试。" : !channels.length ? "暂无可用物流渠道，请联系物流商开通。" : !channel ? "请选择物流渠道，再核对包裹信息。" : issues.length ? issues[0] : quote ? quoteExpired ? "报价已过期，请重新查询。" : confirmed ? "已确认信息，可提交面单请求。" : "请核对报价并勾选确认，再生成面单。" : "信息已齐全，可以查询物流成本。";
 
   async function loadChannels(signal?:AbortSignal) {
     setChannelLoading(true);setChannelError("");
