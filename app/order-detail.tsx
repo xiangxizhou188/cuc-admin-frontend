@@ -4,7 +4,7 @@ import {ArrowLeft,ArrowClockwise,Package,Truck,X} from "@phosphor-icons/react";
 import {request} from "./api";
 import "./order-detail.css";
 type Detail={id:string;orderNumber:string;status:string;paymentStatus:string;createdAt:string;subtotalCents:number;taxCents:number;shippingCents:number;totalCents:number;rewardRedemptionCents:number;refundedAmountCents:number;restoredRewardsCents:number;checkoutId:string|null;customer:{name:string;username:string;email:string};shippingAddress:{recipientName:string;phone:string;addressLine1:string;addressLine2:string;city:string;state:string;postalCode:string;country:string};items:{id:string;name:string;sku:string;quantity:number;unitPriceCents:number;lineTotalCents:number}[]};
-const money=(v:number)=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(v/100);
+const money=(v:number)=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(v===0?0:v/100);
 const statuses:Record<string,string>={submitted:"待确认",confirmed:"已确认",processing:"备货中",shipped:"已发货",delivered:"已送达",cancelled:"已取消",refunded:"已退款"};
 const payments:Record<string,string>={paid:"已付款",partially_refunded:"部分退款",refunded:"已退款",refund_pending:"退款处理中",pending_session:"待付款",pending_payment:"待付款",payment_failed:"支付失败",canceled:"支付已取消",legacy:"历史订单",verification_failed:"待核查",paid_inventory_conflict:"库存待核查"};
 export function OrderDetail({token,orderId,onClose,onShipping,onRefund}:{token:string;orderId:string;onClose:()=>void;onShipping:()=>void;onRefund?:()=>void}){
