@@ -81,3 +81,9 @@ membership, orders, homepage content, audit logs, settings, drawers and dialogs.
   dialog focus management, horizontal table scrolling and mobile form wrapping.
 - Pending-order counts use a red/white rounded badge, hide at zero and cap the
   displayed label at `99+`; the accessible label retains the exact count.
+
+- Prefer spacing, neutral surface fills and subtle shadows over enclosing borders.
+  Text fields, textareas and selects use a borderless light gray fill; retain visible
+  keyboard focus and invalid states. Keep essential table row separators.
+- Single-value selects use a 16px thin chevron inset 12px from the right, with
+  40px reserved text padding. Preserve native list boxes and forced-colors arrows.

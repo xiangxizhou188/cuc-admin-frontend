@@ -723,3 +723,52 @@ td { min-height: 72px; }
 .admin-shell :is(.settings-panel,.editor-card,.customer-card,.page-copy-form,.inventory-modal,.category-modal) :is(input:not([type=checkbox]):not([type=radio]),select,textarea) { font-weight:400; letter-spacing:0; }
 .admin-shell input[type=checkbox],.admin-shell input[type=radio] { accent-color:#635bff; }
 .admin-shell .editor-layout { background:#f6f7fa; }
+
+/* Quiet admin surfaces: separate content with spacing and tone rather than outlines. */
+:root { --control-fill:#f5f6f8; --control-chevron:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23798497' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E"); }
+select:not([multiple]):not([size]),select[size="1"] {
+  appearance:none; -webkit-appearance:none;
+  background-image:var(--control-chevron)!important;
+  background-repeat:no-repeat!important;
+  background-position:right 12px center!important;
+  background-size:16px 16px!important;
+  padding-right:40px!important;
+}
+.admin-shell :is(input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=color]):not([type=hidden]):not([type=submit]):not([type=button]),select,textarea),
+.auth-card input,.tax-modal :is(input:not([type=checkbox]):not([type=radio]),select,textarea) {
+  background-color:var(--control-fill)!important;
+  border-color:transparent!important;
+  border-radius:7px;
+  box-shadow:none;
+}
+.admin-shell :is(input,select,textarea):focus-visible,.auth-card input:focus-visible,.tax-modal :is(input,select,textarea):focus-visible {
+  outline:2px solid #a49eff!important; outline-offset:2px;
+}
+.admin-shell :is(input,select,textarea)[aria-invalid=true]:not(:disabled) { outline:1px solid #d5a057; outline-offset:0; }
+.admin-shell :is(input,select,textarea):disabled { background-color:#f1f2f5!important; color:#8792a2; }
+.admin-shell :is(.global-search,.table-search,.crm-list-search,.customer-search,.orders-search) { background:#f5f6f8; border-color:transparent; border-radius:7px; }
+.admin-shell :is(.global-search,.table-search,.crm-list-search,.customer-search,.orders-search) input { background-color:transparent!important; }
+.admin-shell :is(.global-search,.table-search,.crm-list-search,.customer-search,.orders-search):focus-within { outline:2px solid #a49eff; outline-offset:2px; }
+.admin-shell :is(.global-search,.table-search,.crm-list-search,.customer-search,.orders-search) input:focus-visible { outline:none!important; }
+.admin-shell .money-input i { border-color:transparent; background:var(--control-fill); }
+.admin-shell :is(.panel,.editor-card,.customer-card,.customer-timeline,.membership-overview article,.tier-admin-grid article,.warehouse-cards article,.crm-metrics article,.crm-value-card,.tax-panel,.tax-summary article,.orders-table-panel,.orders-panel) {
+  border-color:transparent; border-radius:10px; box-shadow:0 2px 14px #30364907;
+}
+.admin-shell :is(.toolbar,.list-controls) { border-color:transparent; }
+.admin-shell :is(.table-wrap,.table-scroll,.tax-table,.imports-page>.table-wrap,.imports-page>.toolbar) { border-color:transparent; }
+.admin-shell :is(.outline-button,.icon-button,.order-refund-button,.list-pagination button,.member-actions button:not(.member-primary)) { border-color:transparent; background:#f5f6f8; }
+.admin-shell :is(.outline-button,.icon-button,.order-refund-button,.list-pagination button,.member-actions button:not(.member-primary)):hover:not(:disabled) { background:#eeedff; color:#635bff; }
+.auth-card { border-color:transparent; border-radius:12px; box-shadow:0 10px 45px #30364908; }
+.order-shipping .shipping-card,.order-shipping .shipping-table-scroll { border-color:transparent; }
+.order-shipping .shipping-card { box-shadow:0 2px 10px #30364904; }
+@media(forced-colors:active) {
+  select:not([multiple]):not([size]),select[size="1"] { appearance:auto; background-image:none!important; padding-right:12px!important; }
+  .admin-shell :is(input,select,textarea),.auth-card input,.tax-modal :is(input,select,textarea) { border:1px solid ButtonText!important; }
+}
+
+.admin-shell main,.admin-shell .content { background:#f8f9fc; }
+.admin-shell .orders-shipping-button { border-color:transparent; background:#f0f4f8; }
+.admin-shell .orders-page-heading h2>span { border-color:transparent; background:#eeeff4; }
+.admin-shell .orders-status-tabs { border-color:transparent; }
+.admin-shell .orders-search { box-shadow:none; }
+.admin-shell .orders-search:focus-within { box-shadow:none; }
