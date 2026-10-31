@@ -9,7 +9,7 @@ import {packageDisplay,packageMetric} from "./shipping-units";
 type Shipment = {status:string;reference_no:string;tracking_number:string;label_url:string;error_code:string;cost_cents:number;channel_name:string};
 type Detail = {testMode?:boolean;orderNumber:string;customerShippingCents:number;address:{name:string;phone:string;line1:string;line2:string;city:string;state:string;zip:string};origin:string;canShip:boolean;blockReason?:string|null;pieces:ShippingPiece[];shipment:Shipment|null};
 type Channel = {code:string;name:string;carrier:string};
-type Quote = {quoteId:string;channelName:string;costCents:number;expiresAt:number;isRemote:boolean};
+type Quote = {quoteId:string;channelName:string;costCents:number;expiresAt:number;isRemote:boolean;providerResponse?:unknown};
 const labels:Record<string,string> = {submitting:"正在提交运单",unknown:"出单结果待核查",pending:"正在生成面单",failed:"物流预报失败",label_ready:"面单已就绪"};
 const errors:Record<string,string> = {
   OIS_NOT_CONFIGURED:"物流 API 尚未完成配置，请联系管理员。",OIS_AUTH_FAILED:"物流账号验证失败，请联系管理员检查配置。",
@@ -115,6 +115,7 @@ export function OrderShipping({token,orderId,onClose}:{token:string;orderId:stri
           {quote&&<section className={`shipping-card shipping-quote${quoteExpired?" shipping-quote-expired":""}`} aria-labelledby="shipping-quote-title">
             <div className="shipping-section-title"><span><Calculator aria-hidden="true"/></span><div><h3 id="shipping-quote-title">物流成本试算</h3><p>{quote.channelName}</p></div><strong className="shipping-quote-price">{money(quote.costCents)} <small>USD</small></strong></div>
             <p className="shipping-support-copy">{quoteExpired?"报价已过期，请重新查询。":`可确认至 ${new Date(quote.expiresAt).toLocaleTimeString("zh-CN")}。`}最终费用可能受复称、箱规或附加费影响，客户配送费不会因此改变。</p>
+            {quote.providerResponse!==undefined&&<details className="shipping-raw-response"><summary>查看物流商原始返回 JSON</summary><p className="shipping-support-copy">仅包含本次成功试算的原始响应，请在关闭面板前复制保存。</p><textarea aria-label="物流商原始返回 JSON" readOnly rows={12} value={JSON.stringify(quote.providerResponse,null,2)} onFocus={event=>event.currentTarget.select()}/><button type="button" className="shipping-secondary-button" onClick={async event=>{const button=event.currentTarget,field=button.parentElement?.querySelector("textarea");try{await navigator.clipboard.writeText(JSON.stringify(quote.providerResponse,null,2));button.textContent="已复制"}catch{field?.focus();field?.select();button.textContent="请全选复制 JSON"}}}>复制 JSON</button></details>}
             {quote.isRemote&&<div className="shipping-inline-note"><Info aria-hidden="true"/>此地址被物流商标记为偏远地址。</div>}
             {!quoteExpired&&<label className="shipping-confirm"><input type="checkbox" checked={confirmed} disabled={busy} onChange={event=>setConfirmed(event.target.checked)}/><span>{detail.testMode?"我已核对收件地址和箱规，确认生成测试运单。":"我已核对渠道发货仓、收件地址、实测箱规与费用；确认后将向正式物流商提交运单，可能产生物流费用。"}</span></label>}
           </section>}
